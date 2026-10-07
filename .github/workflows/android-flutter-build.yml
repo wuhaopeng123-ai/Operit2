@@ -78,6 +78,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create Python venv
+        shell: pwsh
+        run: |
+          # 必需：apps/flutter/app/hook/build.dart 在构建期会调用仓库根的
+          #   .venv\Scripts\python.exe plugins/tools/sync_plugin_packages.py
+          # .venv 被 .gitignore 忽略，CI 里不存在，必须现场创建。
+          # 该脚本只用标准库，所以空 venv 即可，无需 pip 安装任何包。
+          python -m venv .venv
+          $py = '.venv\Scripts\python.exe'
+          if (-not (Test-Path -LiteralPath $py)) {
+            throw "venv python was not created at $py"
+          }
+          & $py -c "import sys; print('venv ready:', sys.version)"
+
       - name: Download Android terminal runtime
         uses: actions/download-artifact@v4
         with:
