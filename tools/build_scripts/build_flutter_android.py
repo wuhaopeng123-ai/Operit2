@@ -12,6 +12,7 @@ from common import (
     copy_required_file,
     flutter_command,
     flutter_pub_get,
+    generate_dart_proxy_artifacts,
     read_properties,
     run,
     write_properties,
@@ -100,6 +101,8 @@ def main() -> int:
     if not args.skip_signing:
         ensure_android_signing()
     flutter = flutter_command()
+    # Rust 代理 crate 的 build.rs 负责生成 Dart 桥接模型，缺这步 Dart 编译必挂。
+    generate_dart_proxy_artifacts()
     configure_android_flutter_sdk(flutter)
     flutter_pub_get(enforce_lockfile=args.enforce_lockfile)
     command = [
