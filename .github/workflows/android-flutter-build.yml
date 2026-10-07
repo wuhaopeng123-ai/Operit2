@@ -182,3 +182,68 @@ jobs:
           path: tools/release/dist/operit2-app-android-arm64-v8a.apk
           if-no-files-found: error
           retention-days: 14
+
+
+  publish-release:
+    needs: build-android
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: operit2-android-${{ github.sha }}
+          path: dist
+
+      - name: Publish GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          VERSION=$(grep -E '^version:' apps/flutter/app/pubspec.yaml \
+            | head -1 \
+            | sed -E 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          if [ -z "$VERSION" ]; then
+            echo "::error::无法从 pubspec.yaml 解析版本号"
+            exit 1
+          fi
+          TAG="v${VERSION}"
+
+          APK="dist/operit2-app-android-arm64-v8a.apk"
+          if [ ! -f "$APK" ]; then
+            echo "::error::未找到 $APK"
+            ls -R dist
+            exit 1
+          fi
+
+          echo "版本 = $VERSION    tag = $TAG"
+          ls -l "$APK"
+
+          # 同名 Release 已存在则先删掉，避免重复 tag
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "已存在 $TAG，先删除"
+            gh release delete "$TAG" --yes --cleanup-tag
+          fi
+
+          # 稳定版 tag 绝不加 --prerelease
+          # 用 --notes-file 而不是 --notes，避免多行引号踩 YAML 块标量的坑
+          NOTES=$(mktemp)
+          {
+            echo "自动构建的 Operit2 改名版（Pengsong）。"
+            echo
+            echo "- 版本：${VERSION}"
+            echo "- 提交：$(git rev-parse --short HEAD)"
+            echo "- 资产：operit2-app-android-arm64-v8a.apk"
+          } > "$NOTES"
+
+          gh release create "$TAG" "$APK" \
+            --title "Pengsong ${VERSION}" \
+            --notes-file "$NOTES"
