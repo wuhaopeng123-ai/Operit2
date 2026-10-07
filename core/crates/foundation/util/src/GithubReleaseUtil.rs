@@ -21,7 +21,7 @@ use std::cmp::Ordering as CmpOrdering;
 #[cfg(not(target_arch = "wasm32"))]
 use std::error::Error;
 
-const GITHUB_RELEASE_OWNER: &str = "AAswordman";
+const GITHUB_RELEASE_OWNER: &str = "wuhaopeng123-ai";
 const GITHUB_RELEASE_REPO: &str = "Operit2";
 #[cfg(not(target_arch = "wasm32"))]
 const GITHUB_API_BASE: &str = "https://api.github.com";

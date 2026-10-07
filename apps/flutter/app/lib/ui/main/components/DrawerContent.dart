@@ -1306,7 +1306,7 @@ class _DrawerContentState extends State<DrawerContent> {
                     ),
                     sliver: SliverToBoxAdapter(
                       child: SidebarInfoCard(
-                        brandName: 'Operit',
+                        brandName: 'Pengsong',
                         appearance: widget.appearance,
                         trailing: _SegmentedModeSwitch(
                           groupingMode: _groupingMode,

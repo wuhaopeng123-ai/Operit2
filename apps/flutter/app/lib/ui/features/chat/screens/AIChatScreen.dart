@@ -2104,7 +2104,7 @@ class _AIChatSurfaceState extends State<_AIChatSurface> {
         ? characterCardName
         : activeCharacterCardName != null && activeCharacterCardName.isNotEmpty
         ? activeCharacterCardName
-        : 'Operit';
+        : 'Pengsong';
     final secondaryText = _currentChatTitle.trim();
     controller.setTitleContent(
       TopBarTitleContent((context) {

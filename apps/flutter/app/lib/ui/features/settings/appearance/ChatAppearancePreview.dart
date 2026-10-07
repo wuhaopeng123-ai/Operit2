@@ -66,7 +66,7 @@ class _ChatAppearancePreviewState extends State<ChatAppearancePreview> {
     final snapshot = controller.themePreferenceSnapshot;
     final roleName = controller.hasActiveThemeTarget
         ? controller.activeThemeTargetName
-        : 'Operit';
+        : 'Pengsong';
     final l10n = AppLocalizations.of(context)!;
     return FutureBuilder<List<core_proxy.CharacterCard>>(
       future: _characterCards,

@@ -19,7 +19,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workspaceDiscardChanges => 'Discard changes';
 
   @override
-  String get askOperitHint => 'Ask Operit';
+  String get askOperitHint => 'Ask Pengsong';
 
   @override
   String get aiChat => 'AI Chat';
@@ -1344,7 +1344,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsModelCodexDeviceInstructions =>
-      'Enter this code on the opened page, then return to Operit.';
+      'Enter this code on the opened page, then return to Pengsong.';
 
   @override
   String get settingsModelCodexOpenPage => 'Open verification page';

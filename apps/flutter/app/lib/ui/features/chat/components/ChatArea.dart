@@ -1512,7 +1512,7 @@ class _EmptyChatArea extends StatelessWidget {
     }
     return Center(
       child: Text(
-        'Operit',
+        'Pengsong',
         style: theme.textTheme.displaySmall?.copyWith(
           color: theme.colorScheme.primary.withValues(alpha: 0.38),
           fontWeight: FontWeight.w600,
