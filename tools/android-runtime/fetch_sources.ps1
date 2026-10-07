@@ -41,11 +41,35 @@ $items = @(
 foreach ($item in $items) {
     $archivePath = Join-Path $downloadsDir $item.Archive
     Write-Host "Downloading $($item.Name)"
-    Invoke-WebRequest -Uri $item.Url -OutFile $archivePath
 
-    $actualSha256 = (Get-FileHash -Algorithm SHA256 -Path $archivePath).Hash.ToUpperInvariant()
-    if ($actualSha256 -ne $item.Sha256) {
-        throw "$($item.Archive) SHA256 mismatch: $actualSha256"
+    $ok = $false
+    if (Test-Path $archivePath) {
+        $cached = (Get-FileHash -Algorithm SHA256 -Path $archivePath).Hash.ToUpperInvariant()
+        if ($cached -eq $item.Sha256) {
+            Write-Host "  cached, sha256 ok"
+            $ok = $true
+        }
+    }
+
+    # 源站时有不稳，实测出现过 504 Gateway Time-out（build37635650417）。
+    # 重试 3 次带退避，避免偶发抖动直接废掉整轮构建。
+    for ($attempt = 1; -not $ok -and $attempt -le 3; $attempt++) {
+        try {
+            Invoke-WebRequest -Uri $item.Url -OutFile $archivePath -TimeoutSec 300
+            $actualSha256 = (Get-FileHash -Algorithm SHA256 -Path $archivePath).Hash.ToUpperInvariant()
+            if ($actualSha256 -ne $item.Sha256) {
+                throw "$($item.Archive) SHA256 mismatch: $actualSha256"
+            }
+            $ok = $true
+        } catch {
+            Write-Warning "  attempt $attempt failed: $($_.Exception.Message)"
+            if (Test-Path $archivePath) { Remove-Item -LiteralPath $archivePath -Force }
+            if ($attempt -lt 3) { Start-Sleep -Seconds (15 * $attempt) }
+        }
+    }
+
+    if (-not $ok) {
+        throw "Download failed after 3 attempts: $($item.Name)"
     }
 
     $extractPath = Join-Path $sourcesDir $item.Extracted
