@@ -108,6 +108,18 @@ jobs:
         with:
           node-version: 22
 
+      - name: Prepare repository TypeScript compiler
+        shell: pwsh
+        run: |
+          $depsDir = ".ci-tools/typescript"
+          New-Item -ItemType Directory -Force -Path $depsDir | Out-Null
+          npm install --silent --no-audit --no-fund --prefix $depsDir typescript@5.9.3
+          $tsc = Join-Path $depsDir "node_modules/.bin/tsc.cmd"
+          if (-not (Test-Path -LiteralPath $tsc)) {
+            throw "TypeScript compiler was not prepared at $tsc"
+          }
+          Write-Output "TypeScript compiler ready: $tsc"
+
       - name: Install Java
         uses: actions/setup-java@v4
         with:
